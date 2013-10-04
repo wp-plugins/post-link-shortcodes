@@ -133,5 +133,8 @@ The two filters may be used together.
 
 == Changelog ==
 
+= 0.3 =
+* Aliases introduced
+
 = 0.2 =
 * Initial release!
