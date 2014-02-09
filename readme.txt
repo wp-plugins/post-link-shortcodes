@@ -100,12 +100,13 @@ The sky is the limit!
 
 PLS has several filters to control the output.
 
-* `pls/url` - a returned value of (bool) `false` will kill further output/processing - equivalent to no target found. 
+* `pls/url` - a returned value of (bool) `false` will kill further output/processing - equivalent to no target found.
 * `pls/single_text` - inner text for anchor for a single post
 * `pls/archive_text` - inner text for anchor for a post archive page
 * `pls/link_text` - inner text for anchor
 * `pls/link` - link markup
 * `pls/output` - final returned output
+* `pls/output/not_found` - markup to return in the event the target is not found. Default: `''` (empty string)
 
 Each filter callback accepts at least 2 parameters, some 3.  See the source for more information about each filter.  It's well documented! 
 
@@ -132,6 +133,9 @@ The two filters may be used together.
 
 
 == Changelog ==
+
+= 0.3.1 =
+* Fix a bug where a shortcode would return data for the current page/post when searching for a target post by a slug that does not or no longer exists.
 
 = 0.3 =
 * Aliases introduced
