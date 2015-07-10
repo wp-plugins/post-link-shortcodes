@@ -1,24 +1,37 @@
-=== Plugin Name ===
+=== Post Link Shortcodes ===
 Stable tag: 0.3.1
 Contributors: aaemnnosttv
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=LRA4JZYALHX82
 Tags: post link, post url, custom post type link, custom post type url, shortcodes
-Requires at least: 2.9
-Tested up to: 4.0
+Requires at least: 3.6
+Tested up to: 3.9
 License: GPLv2 or later
 
-A plugin for dynamically adding a collection of shortcodes for building links to a given post/archive (of any type) or simply returning the URL!
+A collection of shortcodes for building links, images, or URLs to a given post/archive of any type.
 
 == Description ==
 
 Aptly titled *Post Link Shortcodes*, the plugin dynamically creates shortcodes for each registered post type.  These shortcodes can be used to create an html anchor to the post, post type archive or just return the URL for either.
 
-Each post type will have 4 shortcodes created for it where `posttype` is the name of the post type. Eg: `post` or `page`
+Each post type will have 2 shortcodes created for it where `{type}` is the name of the post type. Eg: `post` or `page`
 
-`[posttype_url]
-[posttype_link]
-[posttype_archive_url]
-[posttype_archive_link]`
+`[{type}_url]
+[{type}_link]`
+
+If the post type was registered with `has_archive`, two more shortcodes will also be created:
+
+`[{type}_archive_url]
+[{type}_archive_link]`
+
+**NEW in 0.4.0:**
+If the post type supports `thumbnail` (featured images) two more shortcodes will also be created:
+`[{type}_src]
+[{type}_img]`
+
+**NEW in 0.4.0:**
+Attachment shortcodes
+`[attachment_src]
+[attachment_img]`
 
 
 = Attributes & Usage =
@@ -38,6 +51,8 @@ Depending on what kind of returned information is desired, the right shortcode w
 `[post_url hello-world]` or `[post_url 1]`
 `[page_url sample-page]` or `[page_url 2]`
 
+If used, shorthand values must be the first _keyless_ shortcode attribute if any others are used.
+
 = Archive =
 
 *By default, built-in WordPress post types do not have archive pages, therefore this feature is geared more for custom post types.
@@ -46,32 +61,61 @@ For this example, I will reference a hypothetical custom post type 'book' which 
 `[book_archive_url]`
 That's it!
 
-= Link / Anchor =
+= HTML Elements = 
+Prior to v0.4.0, Post Link Shortcodes were limited to creating HTML anchors - "links" - to their target resource.
 
-The link shortcodes are fully controlable. The attributes are the same as the URL shortcodes for establishing the target (href).
+With 0.4.0, that support has been extended to images as well.
 
-**Link Text**
+= HTML Element Attributes =
 
-Link text (anchor inner html) is set by either:
+Post Link Shortcodes aims to provide maximum flexibility when it comes to adding attributes to the html element you are generating.  You can essentially use whatever you want.
 
-**Dynamic**
+The html attributes mirror the attributes used by the shortcode, with the exception of the reserved control attributes: `post_id`, `slug`, `inner`, `text`, and - where applicable - `size`.
 
-* `[posttype_link]` defaults to target post title
-* `[posttype_archive_link]` defaults to posttype name
-
-**Static**
-
-* `[posttype_link]this is link text[/posttype_link]` OR
-* `[posttype_link text="this is link text"]`
-
-Link text supports shortcodes.
-
-**The rest of the attributes are created by YOU!
-Any other attribute="value" you use, will be added to the html element.**
+To reiterate, any other attribute="value" added to the shortcode, will be added to the html element.  It really couldn't be easier!
 
 ( *Allowed attributes can be restricted using filters* )
 
-**Example:** `[posttype_link id=mylink class="blue special" target=_blank]`
+= Images =
+
+Images can be rendered in two ways, either by using the `attachment_img` shortcode or by the dynamic `{type}_img` shortcode, which is added for all registered post types which support `thumbnail` (featured images).
+
+
+= Link / Anchor =
+
+The link shortcodes are fully controlable. 
+
+**Link Text**
+
+Link text (inner html) is set by either:
+
+**Dynamic**
+
+* `[{type}_link]` defaults to target post title
+* `[{type}_archive_link]` defaults to {type} name
+
+**Static** (in order of dominance)
+* `[{type}_link]this is link text[/{type}_link]`
+* `[{type}_link inner="this is link text"]`
+* `[{type}_link text="this is link text"]`
+
+Link text supports shortcodes.
+
+== Linking to an SRC ==
+
+Post Link Shortcodes refers to an `src` as the URL to an image, or attachment of any other type.
+By default, a `{type}_link` shortcode will use the target's permalink as the URL.  For targets with a featured image, or attachments where you want to create a link to the target's src, simply use the `href=src` attribute pair.  That's it!
+
+E.g. `[attachment_link 5234 href=src text="Download the PDF manual" class="pdf" download]`
+
+This would generate an html anchor with the href pointing to the file URL for the attachment with ID 5234, which might look something like this:
+`<a href="http://example.com/wp-content/uploads/2015/06/user-manual.pdf" class="pdf" download>Download the PDF manual</a>`
+
+Note the keyless/boolean `download` attribute.  This is an HTML5 attribute which modern browsers understand that the target url is to be downloaded, rather than navigated to.  Try it!  Great for file downloads like the above example.
+
+
+
+**Example:** `[{type}_link id=mylink class="blue special" target=_blank]`
 will produce: `<a href="url-to-post" id="mylink" class="blue special" target="_blank">Post Title</a>`
 
 Any attribute you set will be added to the element with the exception of those specifically used by PLS - ie: 'slug', 'post_id', or 'text'. 'href' is also ignored as a shortcode attribute as it is set dynamically!
@@ -100,11 +144,14 @@ The sky is the limit!
 
 PLS has several filters to control the output.
 
-* `pls/url` - a returned value of (bool) `false` will kill further output/processing - equivalent to no target found.
+* `pls/object` - the target object
+* `pls/url` - the target url/src
 * `pls/single_text` - inner text for anchor for a single post
 * `pls/archive_text` - inner text for anchor for a post archive page
 * `pls/link_text` - inner text for anchor
+* `pls/inner` - html element's inner html
 * `pls/link` - link markup
+* `pls/img` - image markup
 * `pls/output` - final returned output
 * `pls/output/not_found` - markup to return in the event the target is not found. Default: `''` (empty string)
 
@@ -114,9 +161,9 @@ Each filter callback accepts at least 2 parameters, some 3.  See the source for 
 
 By default, all html attributes are allowed in link shortcodes.  If you wish to restrict those that can be used, there are 2 filters for doing so.
 
-* `pls/allowed_link_attributes` - indexed array of all allowed attribute names.  All others are stripped out.  I would recommend including 'href' here if you use this filter as it is not protected.
+* `pls/{request}/attributes/allowed` - indexed array of all allowed attribute names.  All others are stripped out.  I would recommend including 'href' here if you use this filter as it is not protected.
 
-* `pls/exclude_link_attributes` - indexed array of attribute names NOT to allow.
+* `pls/{request}/attributes/disallowed` - indexed array of attribute names NOT to allow.
 
 The two filters may be used together.
 
@@ -133,6 +180,13 @@ The two filters may be used together.
 
 
 == Changelog ==
+
+= 0.4.0 =
+* Requires PHP 5.4 or above
+* NEW: attachment_src and attachment_img shortcodes
+* NEW: added filters
+* Various improvements and optimizations under the hood
+* Added support for boolean html attributes 
 
 = 0.3.1 =
 * Fix a bug where a shortcode would return data for the current page/post when searching for a target post by a slug that does not or no longer exists.
