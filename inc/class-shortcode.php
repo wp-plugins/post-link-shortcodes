@@ -37,10 +37,10 @@ class PostLinkShortcode
     /* @var string */
     protected $src;
 
-    /* enclosed shortcode content */
+    /* @var string  enclosed shortcode content */
     protected $content;
 
-    /* element inner content */
+    /* @var string  element inner content */
     protected $inner;
 
     /* @var array */
@@ -49,16 +49,23 @@ class PostLinkShortcode
     /* @var array */
     protected $attrs = array();
 
-    /* html attribute which should receive the url */
+    /* @var string  html attribute which should receive the url */
     protected $url_attribute;
 
-    /* shortcode attributes reserved for output control */
+    /* @var array  shortcode attributes reserved for output control */
     protected $reserved_keys = array( 'post_id', 'slug', 'inner', 'text' );
 
     /* @deprecated 0.4.0 */
     protected $_url;
 
 
+	/**
+     * Create a new PostLinkShortcode
+     *
+     * @param $atts
+     * @param $content
+     * @param $tag
+     */
     public function __construct( $atts, $content, $tag )
     {
         if ( ! is_array( $atts ) )
@@ -108,13 +115,15 @@ class PostLinkShortcode
                 $this->element = 'a';
                 $this->url_attribute = 'href';
                 break;
+
             case 'img' :
                 $this->element = 'img';
                 $this->url_attribute = 'src';
-                array_push($this->reserved_keys, 'size');
+                array_push( $this->reserved_keys, 'size' );
                 break;
+
             case 'src' :
-                array_push($this->reserved_keys, 'size');
+                array_push( $this->reserved_keys, 'size' );
                 break;
         }
 
@@ -273,7 +282,7 @@ class PostLinkShortcode
             );
             $inner = apply_filters( 'pls/single_text', $inner, $this->obj, $this->get_filter_data() );
         }
-        
+
         return $this->inner = $inner;
     }
 
@@ -505,8 +514,8 @@ class PostLinkShortcode
                     "The filter tag 'pls/allowed_link_attributes' is deprecated.'
                     Use 'pls/link/attributes/allowed' instead."
                 );
+                $allowed = apply_filters( 'pls/allowed_link_attributes', $allowed, $attrs, $this->get_filter_data() );
             }
-            $allowed = apply_filters( 'pls/allowed_link_attributes', $allowed, $attrs, $this->get_filter_data() );
         }
         $allowed = apply_filters( "pls/$this->request/attributes/allowed", $allowed, $attrs, $this->get_filter_data() );
 
@@ -545,8 +554,8 @@ class PostLinkShortcode
                     "The filter tag 'pls/exclude_link_attributes' is deprecated.'
                     Use 'pls/link/attributes/disallowed' instead."
                 );
+                $disallowed = apply_filters( 'pls/allowed_link_attributes', $disallowed, $attrs, $this->get_filter_data() );
             }
-            $disallowed = apply_filters( 'pls/allowed_link_attributes', $disallowed, $attrs, $this->get_filter_data() );
         }
         $disallowed = apply_filters( "pls/$this->request/attributes/disallowed", $disallowed, $attrs, $this->get_filter_data() );
 
